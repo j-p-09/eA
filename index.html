@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8">
+  <title>eRedovalnica z zaključnimi ocenami</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background: #e0e0e0;
+    }
+
+    .clickable {
+      cursor: pointer;
+      background-color: #f9f9f9;
+    }
+
+    .grade-span {
+      margin-right: 5px;
+      cursor: pointer;
+    }
+
+    .red {
+      color: red;
+      font-weight: bold;
+    }
+
+    .blue {
+      color: blue;
+      font-weight: bold;
+    }
+
+    .green {
+      color: green;
+      font-weight: bold;
+    }
+
+    .gray-old {
+      color: gray;
+      font-size: 0.8em;
+      text-decoration: line-through;
+    }
+
+    .final-grade {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: black;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 100;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      width: 400px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #333;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      margin: 5px 0;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .btn-secondary {
+      background-color: #ccc;
+    }
+
+    .btn-danger {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .modal-buttons {
+      margin-top: 10px;
+    }
+
+    textarea {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+<h2>eRedovalnica</h2>
+
+<table id="gradesTable">
+  <thead>
+    <tr>
+      <th>Učenec</th>
+      <th>1. oc. obdobje</th>
+      <th>2. oc. obdobje</th>
+      <th>Konec</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Novak Simon</td>
+      <td class="clickable" data-student="Novak Simon" data-period="1"></td>
+      <td class="clickable" data-student="Novak Simon" data-period="2"></td>
+      <td class="clickable" data-student="Novak Simon" data-period="konec"></td>
+    </tr>
+    <tr>
+      <td>Nugovička Pika</td>
+      <td class="clickable" data-student="Nugovička Pika" data-period="1"></td>
+      <td class="clickable" data-student="Nugovička Pika" data-period="2"></td>
+      <td class="clickable" data-student="Nugovička Pika" data-period="konec"></td>
+    </tr>
+    <tr>
+      <td>Ocepek Matija</td>
+      <td class="clickable" data-student="Ocepek Matija" data-period="1"></td>
+      <td class="clickable" data-student="Ocepek Matija" data-period="2"></td>
+      <td class="clickable" data-student="Ocepek Matija" data-period="konec"></td>
+    </tr>
+    <tr>
+      <td>Ogorevc Jaka</td>
+      <td class="clickable" data-student="Ogorevc Jaka" data-period="1"></td>
+      <td class="clickable" data-student="Ogorevc Jaka" data-period="2"></td>
+      <td class="clickable" data-student="Ogorevc Jaka" data-period="konec"></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Modal za ocene -->
+<div class="modal" id="gradeModal">
+  <div class="modal-content">
+    <h3 id="modalTitle">Dodaj oceno</h3>
+    <label>Datum: <input type="date" id="gradeDate" value="2024-09-02"></label><br><br>
+
+    <label>Ocenjevalno obdobje:
+      <select id="gradePeriod">
+        <option value="1">1. ocenjevalno obdobje</option>
+        <option value="2">2. ocenjevalno obdobje</option>
+      </select>
+    </label><br><br>
+
+    <label>Tip:
+      <select id="gradeType">
+        <option value="pisna">PISNA OCENA</option>
+        <option value="ustna">USTNA OCENA</option>
+        <option value="izdelek">IZDELEK</option>
+      </select>
+    </label><br><br>
+
+    <div>
+      <label><input type="radio" name="gradeValue" value="NPS"> NPS</label><br>
+      <label><input type="radio" name="gradeValue" value="1"> 1</label><br>
+      <label><input type="radio" name="gradeValue" value="2"> 2</label><br>
+      <label><input type="radio" name="gradeValue" value="3"> 3</label><br>
+      <label><input type="radio" name="gradeValue" value="4"> 4</label><br>
+      <label><input type="radio" name="gradeValue" value="5"> 5</label><br>
+    </div><br>
+
+    <label>Komentar:</label><br>
+    <textarea id="gradeComment" rows="3"></textarea><br>
+
+    <button class="btn btn-secondary" onclick="closeModal()">Prekliči</button>
+    <button class="btn btn-primary" onclick="saveGrade()">Shrani</button>
+  </div>
+</div>
+
+<!-- Pregled že obstoječe ocene -->
+<div class="modal" id="viewModal">
+  <div class="modal-content">
+    <h3>Ocena</h3>
+    <p><strong>Ocena:</strong> <span id="viewGradeValue"></span></p>
+    <p><strong>Komentar:</strong> <span id="viewComment"></span></p>
+    <div class="modal-buttons">
+      <button class="btn btn-primary" onclick="editGrade(true)">Popravi oceno</button>
+      <button class="btn btn-primary" onclick="editGrade(false)">Uredi oceno</button>
+      <button class="btn btn-danger" onclick="deleteGrade()">Izbriši oceno</button>
+      <button class="btn btn-secondary" onclick="closeModal('viewModal')">Zapri</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal za končno oceno -->
+<div class="modal" id="finalModal">
+  <div class="modal-content">
+    <h3>Zaključna ocena</h3>
+    <p><strong>Povprečje:</strong> <span id="finalAverage"></span></p>
+    <div>
+      <label><input type="radio" name="finalGrade" value="1"> 1</label><br>
+      <label><input type="radio" name="finalGrade" value="2"> 2</label><br>
+      <label><input type="radio" name="finalGrade" value="3"> 3</label><br>
+      <label><input type="radio" name="finalGrade" value="4"> 4</label><br>
+      <label><input type="radio" name="finalGrade" value="5"> 5</label><br>
+    </div><br>
+    <button class="btn btn-secondary" onclick="closeModal('finalModal')">Prekliči</button>
+    <button class="btn btn-primary" onclick="saveFinalGrade()">Shrani</button>
+  </div>
+</div>
+
+<script>
+  let currentCell = null;
+  let editingSpan = null;
+  let replaceMode = true;
+
+  // Load from localStorage
+  window.onload = () => {
+    const saved = JSON.parse(localStorage.getItem('gradeData') || '{}');
+    for (const [key, html] of Object.entries(saved)) {
+      const cell = document.querySelector([data-student="${key.split('|')[0]}"][data-period="${key.split('|')[1]}"]);
+      if (cell) cell.innerHTML = html;
+    }
+    addSpanListeners();
+  };
+
+  function saveToStorage() {
+    const allCells = document.querySelectorAll('.clickable');
+    const data = {};
+    allCells.forEach(cell => {
+      data[${cell.dataset.student}|${cell.dataset.period}] = cell.innerHTML;
+    });
+    localStorage.setItem('gradeData', JSON.stringify(data));
+  }
+
+  function closeModal(id = 'gradeModal') {
+    document.getElementById(id).style.display = 'none';
+    editingSpan = null;
+  }
+
+  document.querySelectorAll('.clickable').forEach(cell => {
+    cell.addEventListener('click', () => {
+      currentCell = cell;
+      const period = cell.dataset.period;
+      if (period === 'konec') {
+        const allGrades = Array.from(cell.parentElement.querySelectorAll('td[data-period="1"], td[data-period="2"]'))
+          .flatMap(td => Array.from(td.querySelectorAll('span')))
+          .map(span => parseFloat(span.dataset.gradeValue))
+          .filter(val => !isNaN(val));
+        const avg = allGrades.length ? (allGrades.reduce((a, b) => a + b, 0) / allGrades.length).toFixed(2) : "Ni ocen";
+        document.getElementById('finalAverage').textContent = avg;
+        document.getElementById('finalModal').style.display = 'flex';
+      } else {
+        document.getElementById('gradePeriod').value = period;
+        document.getElementById('modalTitle').textContent = Dodaj oceno za ${cell.dataset.student};
+        document.getElementById('gradeModal').style.display = 'flex';
+        document.querySelectorAll('input[name="gradeValue"]').forEach(r => r.checked = false);
+        document.getElementById('gradeComment').value = '';
+      }
+    });
+  });
+
+  function saveGrade() {
+    const gradeInput = document.querySelector('input[name="gradeValue"]:checked');
+    const gradeType = document.getElementById('gradeType').value;
+    const comment = document.getElementById('gradeComment').value;
+
+    if (!gradeInput) {
+      alert("Izberi oceno!");
+      return;
+    }
+
+    const gradeValue = gradeInput.value;
+
+    const span = document.createElement('span');
+    span.textContent = gradeValue + ' ';
+    span.classList.add('grade-span');
+    span.dataset.comment = comment;
+    span.dataset.gradeType = gradeType;
+    span.dataset.gradeValue = gradeValue;
+
+    switch (gradeType) {
+      case 'pisna': span.classList.add('red'); break;
+      case 'ustna': span.classList.add('blue'); break;
+      case 'izdelek': span.classList.add('green'); break;
+    }
+
+    span.addEventListener('click', function (e) {
+      e.stopPropagation();
+      editingSpan = this;
+      document.getElementById('viewGradeValue').textContent = this.dataset.gradeValue;
+      document.getElementById('viewComment').textContent = this.dataset.comment || '(ni komentarja)';
+      document.getElementById('viewModal').style.display = 'flex';
+    });
+
+    if (editingSpan) {
+      if (replaceMode) {
+        editingSpan.replaceWith(span);
+      } else {
+        editingSpan.classList.add('gray-old');
+        editingSpan.after(span);
+      }
+    } else {
+      currentCell.appendChild(span);
+    }
+
+    saveToStorage();
+    closeModal();
+  }
+
+  function addSpanListeners() {
+    document.querySelectorAll('.grade-span').forEach(span => {
+      span.addEventListener('click', function (e) {
+        e.stopPropagation();
+        editingSpan = this;
+        document.getElementById('viewGradeValue').textContent = this.dataset.gradeValue;
+        document.getElementById('viewComment').textContent = this.dataset.comment || '(ni komentarja)';
+        document.getElementById('viewModal').style.display = 'flex';
+      });
+    });
+  }
+
+  function editGrade(modeReplace) {
+    replaceMode = modeReplace;
+    document.getElementById('viewModal').style.display = 'none';
+    document.getElementById('gradeModal').style.display = 'flex';
+  }
+
+  function deleteGrade() {
+    if (editingSpan) {
+      editingSpan.remove();
+      editingSpan = null;
+    }
+    saveToStorage();
+    closeModal('viewModal');
+  }
+
+  function saveFinalGrade() {
+    const selected = document.querySelector('input[name="finalGrade"]:checked');
+    if (!selected) {
+      alert("Izberi zaključeno oceno!");
+      return;
+    }
+    currentCell.innerHTML = <span class="final-grade">${selected.value}</span>;
+    saveToStorage();
+    closeModal('finalModal');
+  }
+</script>
+
+</body>
+</html>
