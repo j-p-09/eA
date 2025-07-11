@@ -130,64 +130,28 @@
   </thead>
   <tbody>
     <tr>
-      <td>Mark Novak</td>
-      <td class="clickable" data-student="Mark Novak" data-period="1"></td>
-      <td class="clickable" data-student="Mark Novak" data-period="2"></td>
-      <td class="clickable" data-student="Mark Novak" data-period="konec"></td>
+      <td>Novak Simon</td>
+      <td class="clickable" data-student="Novak Simon" data-period="1"></td>
+      <td class="clickable" data-student="Novak Simon" data-period="2"></td>
+      <td class="clickable" data-student="Novak Simon" data-period="konec"></td>
     </tr>
     <tr>
-      <td>Ema Horvat</td>
-      <td class="clickable" data-student="Ema Horvat" data-period="1"></td>
-      <td class="clickable" data-student="Ema Horvat" data-period="2"></td>
-      <td class="clickable" data-student="Ema Horvat" data-period="konec"></td>
+      <td>Nugovička Pika</td>
+      <td class="clickable" data-student="Nugovička Pika" data-period="1"></td>
+      <td class="clickable" data-student="Nugovička Pika" data-period="2"></td>
+      <td class="clickable" data-student="Nugovička Pika" data-period="konec"></td>
     </tr>
     <tr>
-      <td>Jakob Kovačič</td>
-      <td class="clickable" data-student="Jakob Kovačič" data-period="1"></td>
-      <td class="clickable" data-student="Jakob Kovačič" data-period="2"></td>
-      <td class="clickable" data-student="Jakob Kovačič" data-period="konec"></td>
+      <td>Ocepek Matija</td>
+      <td class="clickable" data-student="Ocepek Matija" data-period="1"></td>
+      <td class="clickable" data-student="Ocepek Matija" data-period="2"></td>
+      <td class="clickable" data-student="Ocepek Matija" data-period="konec"></td>
     </tr>
     <tr>
-      <td>Mia Kranjc</td>
-      <td class="clickable" data-student="Mia Kranjc" data-period="1"></td>
-      <td class="clickable" data-student="Mia Kranjc" data-period="2"></td>
-      <td class="clickable" data-student="Mia Kranjc" data-period="konec"></td>
-    </tr>
-    <tr>
-      <td>Filip Zupančič</td>
-      <td class="clickable" data-student="Filip Zupančič" data-period="1"></td>
-      <td class="clickable" data-student="Filip Zupančič" data-period="2"></td>
-      <td class="clickable" data-student="Filip Zupančič" data-period="konec"></td>
-    </tr>
-    <tr>
-      <td>Julija Potočnik</td>
-      <td class="clickable" data-student="Julija Potočnik" data-period="1"></td>
-      <td class="clickable" data-student="Julija Potočnik" data-period="2"></td>
-      <td class="clickable" data-student="Julija Potočnik" data-period="konec"></td>
-    </tr>
-    <tr>
-      <td>Luka Kovač</td>
-      <td class="clickable" data-student="Luka Kovač" data-period="1"></td>
-      <td class="clickable" data-student="Luka Kovač" data-period="2"></td>
-      <td class="clickable" data-student="Luka Kovač" data-period="konec"></td>
-    </tr>
-    <tr>
-      <td>Hana Mlakar</td>
-      <td class="clickable" data-student="Hana Mlakar" data-period="1"></td>
-      <td class="clickable" data-student="Hana Mlakar" data-period="2"></td>
-      <td class="clickable" data-student="Hana Mlakar" data-period="konec"></td>
-    </tr>
-    <tr>
-      <td>Nik Vidmar</td>
-      <td class="clickable" data-student="Nik Vidmar" data-period="1"></td>
-      <td class="clickable" data-student="Nik Vidmar" data-period="2"></td>
-      <td class="clickable" data-student="Nik Vidmar" data-period="konec"></td>
-    </tr>
-    <tr>
-      <td>Zala Kos</td>
-      <td class="clickable" data-student="Zala Kos" data-period="1"></td>
-      <td class="clickable" data-student="Zala Kos" data-period="2"></td>
-      <td class="clickable" data-student="Zala Kos" data-period="konec"></td>
+      <td>Ogorevc Jaka</td>
+      <td class="clickable" data-student="Ogorevc Jaka" data-period="1"></td>
+      <td class="clickable" data-student="Ogorevc Jaka" data-period="2"></td>
+      <td class="clickable" data-student="Ogorevc Jaka" data-period="konec"></td>
     </tr>
   </tbody>
 </table>
@@ -271,7 +235,7 @@
   window.onload = () => {
     const saved = JSON.parse(localStorage.getItem('gradeData') || '{}');
     for (const [key, html] of Object.entries(saved)) {
-      const cell = document.querySelector([data-student="${key.split('|')[0]}"][data-period="${key.split('|')[1]}"]);
+      const cell = document.querySelector(`[data-student="${key.split('|')[0]}"][data-period="${key.split('|')[1]}"]`);
       if (cell) cell.innerHTML = html;
     }
     addSpanListeners();
@@ -281,7 +245,7 @@
     const allCells = document.querySelectorAll('.clickable');
     const data = {};
     allCells.forEach(cell => {
-      data[${cell.dataset.student}|${cell.dataset.period}] = cell.innerHTML;
+      data[`${cell.dataset.student}|${cell.dataset.period}`] = cell.innerHTML;
     });
     localStorage.setItem('gradeData', JSON.stringify(data));
   }
@@ -305,7 +269,7 @@
         document.getElementById('finalModal').style.display = 'flex';
       } else {
         document.getElementById('gradePeriod').value = period;
-        document.getElementById('modalTitle').textContent = Dodaj oceno za ${cell.dataset.student};
+        document.getElementById('modalTitle').textContent = `Dodaj oceno za ${cell.dataset.student}`;
         document.getElementById('gradeModal').style.display = 'flex';
         document.querySelectorAll('input[name="gradeValue"]').forEach(r => r.checked = false);
         document.getElementById('gradeComment').value = '';
@@ -394,7 +358,7 @@
       alert("Izberi zaključeno oceno!");
       return;
     }
-    currentCell.innerHTML = <span class="final-grade">${selected.value}</span>;
+    currentCell.innerHTML = `<span class="final-grade">${selected.value}</span>`;
     saveToStorage();
     closeModal('finalModal');
   }
