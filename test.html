@@ -1,147 +1,157 @@
-import React, { useState, useEffect } from 'react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sistem za Ocenjevanje Znanja</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; }
+    button { margin-right: 5px; }
+    input[type='number'] { width: 100%; padding: 4px; }
+    select { padding: 6px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
 
-const generateCode = () => Math.random().toString(36).substring(2, 8).toUpperCase();
+  <script type="text/babel">
 
-const defaultStudents = [
-  { name: "Mark Novak", code: generateCode(), points: [] },
-  { name: "Ema Horvat", code: generateCode(), points: [] },
-  { name: "Jakob Kovačič", code: generateCode(), points: [] },
-  { name: "Mia Kranjc", code: generateCode(), points: [] },
-  { name: "Filip Zupančič", code: generateCode(), points: [] },
-  { name: "Julija Potočnik", code: generateCode(), points: [] },
-  { name: "Luka Kovač", code: generateCode(), points: [] },
-  { name: "Hana Mlakar", code: generateCode(), points: [] },
-  { name: "Nik Vidmar", code: generateCode(), points: [] },
-  { name: "Zala Kos", code: generateCode(), points: [] },
-];
+    const { useState, useEffect } = React;
 
-export default function App() {
-  const [students, setStudents] = useState([]);
-  const [selectedCode, setSelectedCode] = useState("");
-  const [taskPoints, setTaskPoints] = useState(Array(7).fill(""));
+    const generateCode = () => Math.random().toString(36).substring(2, 8).toUpperCase();
 
-  // Load from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem("studentsData");
-    if (saved) {
-      setStudents(JSON.parse(saved));
-    } else {
-      setStudents(defaultStudents);
-    }
-  }, []);
+    const defaultStudents = [
+      { name: "Mark Novak", code: generateCode(), points: [] },
+      { name: "Ema Horvat", code: generateCode(), points: [] },
+      { name: "Jakob Kovačič", code: generateCode(), points: [] },
+      { name: "Mia Kranjc", code: generateCode(), points: [] },
+      { name: "Filip Zupančič", code: generateCode(), points: [] },
+      { name: "Julija Potočnik", code: generateCode(), points: [] },
+      { name: "Luka Kovač", code: generateCode(), points: [] },
+      { name: "Hana Mlakar", code: generateCode(), points: [] },
+      { name: "Nik Vidmar", code: generateCode(), points: [] },
+      { name: "Zala Kos", code: generateCode(), points: [] },
+    ];
 
-  // Save to localStorage
-  useEffect(() => {
-    localStorage.setItem("studentsData", JSON.stringify(students));
-  }, [students]);
+    function App() {
+      const [students, setStudents] = useState([]);
+      const [selectedCode, setSelectedCode] = useState("");
+      const [taskPoints, setTaskPoints] = useState(Array(7).fill(""));
 
-  const handleReset = (code) => {
-    setStudents(students.map(s => s.code === code ? { ...s, points: [] } : s));
-  };
+      useEffect(() => {
+        const saved = localStorage.getItem("studentsData");
+        if (saved) {
+          setStudents(JSON.parse(saved));
+        } else {
+          setStudents(defaultStudents);
+        }
+      }, []);
 
-  const handleChangeCode = (code) => {
-    const newCode = generateCode();
-    setStudents(students.map(s => s.code === code ? { ...s, code: newCode, points: [] } : s));
-  };
+      useEffect(() => {
+        localStorage.setItem("studentsData", JSON.stringify(students));
+      }, [students]);
 
-  const availableCodes = students.filter(s => s.points.length === 0).map(s => s.code);
+      const handleReset = (code) => {
+        setStudents(students.map(s => s.code === code ? { ...s, points: [] } : s));
+      };
 
-  const handleSavePoints = () => {
-    setStudents(students.map(s => s.code === selectedCode ? { ...s, points: taskPoints.map(Number) } : s));
-    setSelectedCode("");
-    setTaskPoints(Array(7).fill(""));
-  };
+      const handleChangeCode = (code) => {
+        const newCode = generateCode();
+        setStudents(students.map(s => s.code === code ? { ...s, code: newCode, points: [] } : s));
+      };
 
-  return (
-    <main className="p-4">
-      <Tabs defaultValue="ucenci">
-        <TabsList>
-          <TabsTrigger value="ucenci">Učenci</TabsTrigger>
-          <TabsTrigger value="preglej">Preglej</TabsTrigger>
-          <TabsTrigger value="rezultati">Rezultati</TabsTrigger>
-        </TabsList>
+      const availableCodes = students.filter(s => s.points.length === 0).map(s => s.code);
 
-        {/* UČENCI */}
-        <TabsContent value="ucenci">
-          <Card className="mt-4">
-            <CardContent className="overflow-x-auto">
-              <table className="w-full text-left">
+      const handleSavePoints = () => {
+        setStudents(students.map(s => s.code === selectedCode ? { ...s, points: taskPoints.map(Number) } : s));
+        setSelectedCode("");
+        setTaskPoints(Array(7).fill(""));
+      };
+
+      const [tab, setTab] = useState("ucenci");
+
+      return (
+        <div>
+          <div>
+            <button onClick={() => setTab("ucenci")}>Učenci</button>
+            <button onClick={() => setTab("preglej")}>Preglej</button>
+            <button onClick={() => setTab("rezultati")}>Rezultati</button>
+          </div>
+
+          {tab === "ucenci" && (
+            <div>
+              <table>
                 <thead>
                   <tr>
-                    <th className="p-2">Učenec</th>
-                    <th className="p-2">Koda</th>
-                    <th className="p-2">Akcije</th>
+                    <th>Učenec</th>
+                    <th>Koda</th>
+                    <th>Akcije</th>
                   </tr>
                 </thead>
                 <tbody>
                   {students.map((s, idx) => (
-                    <tr key={idx} className="border-t">
-                      <td className="p-2">{s.name}</td>
-                      <td className="p-2">{s.code}</td>
-                      <td className="p-2 space-x-2">
-                        <Button size="sm" variant="destructive" onClick={() => handleReset(s.code)}>Ponastavi test</Button>
-                        <Button size="sm" onClick={() => handleChangeCode(s.code)}>Spremeni kodo</Button>
+                    <tr key={idx}>
+                      <td>{s.name}</td>
+                      <td>{s.code}</td>
+                      <td>
+                        <button onClick={() => handleReset(s.code)}>Ponastavi test</button>
+                        <button onClick={() => handleChangeCode(s.code)}>Spremeni kodo</button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            </div>
+          )}
 
-        {/* PREGLEJ */}
-        <TabsContent value="preglej">
-          <Card className="mt-4 p-4">
-            <Select value={selectedCode} onValueChange={setSelectedCode}>
-              <SelectTrigger className="w-64">{selectedCode || "Izberi kodo učenca"}</SelectTrigger>
-              <SelectContent>
+          {tab === "preglej" && (
+            <div>
+              <select value={selectedCode} onChange={e => setSelectedCode(e.target.value)}>
+                <option value="">Izberi kodo učenca</option>
                 {availableCodes.sort(() => 0.5 - Math.random()).map(code => (
-                  <SelectItem key={code} value={code}>{code}</SelectItem>
+                  <option key={code} value={code}>{code}</option>
                 ))}
-              </SelectContent>
-            </Select>
+              </select>
 
-            {selectedCode && (
-              <div className="mt-4 space-y-2">
-                {Array.from({ length: 7 }, (_, i) => (
-                  <Input
-                    key={i}
-                    type="number"
-                    min={0}
-                    max={7}
-                    placeholder={`Točke za nalogo ${i + 1}`}
-                    value={taskPoints[i]}
-                    onChange={e => {
-                      const updated = [...taskPoints];
-                      updated[i] = e.target.value;
-                      setTaskPoints(updated);
-                    }}
-                  />
-                ))}
-                <Button className="mt-2" onClick={handleSavePoints}>Shrani točke</Button>
-              </div>
-            )}
-          </Card>
-        </TabsContent>
+              {selectedCode && (
+                <div style={{ marginTop: 20 }}>
+                  {Array.from({ length: 7 }, (_, i) => (
+                    <div key={i}>
+                      <input
+                        type="number"
+                        min="0"
+                        max="7"
+                        placeholder={`Točke za nalogo ${i + 1}`}
+                        value={taskPoints[i]}
+                        onChange={e => {
+                          const updated = [...taskPoints];
+                          updated[i] = e.target.value;
+                          setTaskPoints(updated);
+                        }}
+                      />
+                    </div>
+                  ))}
+                  <button onClick={handleSavePoints} style={{ marginTop: 10 }}>Shrani točke</button>
+                </div>
+              )}
+            </div>
+          )}
 
-        {/* REZULTATI */}
-        <TabsContent value="rezultati">
-          <Card className="mt-4">
-            <CardContent className="overflow-x-auto">
-              <table className="w-full text-left">
+          {tab === "rezultati" && (
+            <div>
+              <table>
                 <thead>
                   <tr>
-                    <th className="p-2">Učenec</th>
-                    <th className="p-2">Točke (vse)</th>
-                    <th className="p-2">Skupaj</th>
-                    <th className="p-2">Možne točke</th>
-                    <th className="p-2">Procent</th>
+                    <th>Učenec</th>
+                    <th>Točke (vse)</th>
+                    <th>Skupaj</th>
+                    <th>Možne točke</th>
+                    <th>Procent</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -150,21 +160,24 @@ export default function App() {
                     const max = s.points.length * 7;
                     const percent = max > 0 ? ((total / max) * 100).toFixed(1) + "%" : "";
                     return (
-                      <tr key={idx} className="border-t">
-                        <td className="p-2">{s.name}</td>
-                        <td className="p-2">{s.points.join(", ")}</td>
-                        <td className="p-2">{total}</td>
-                        <td className="p-2">{max}</td>
-                        <td className="p-2">{percent}</td>
+                      <tr key={idx}>
+                        <td>{s.name}</td>
+                        <td>{s.points.join(", ")}</td>
+                        <td>{total}</td>
+                        <td>{max}</td>
+                        <td>{percent}</td>
                       </tr>
                     );
                   })}
                 </tbody>
               </table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </main>
-  );
-}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
