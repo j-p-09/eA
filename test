@@ -1,0 +1,170 @@
+import React, { useState, useEffect } from 'react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
+
+const generateCode = () => Math.random().toString(36).substring(2, 8).toUpperCase();
+
+const defaultStudents = [
+  { name: "Mark Novak", code: generateCode(), points: [] },
+  { name: "Ema Horvat", code: generateCode(), points: [] },
+  { name: "Jakob Kovačič", code: generateCode(), points: [] },
+  { name: "Mia Kranjc", code: generateCode(), points: [] },
+  { name: "Filip Zupančič", code: generateCode(), points: [] },
+  { name: "Julija Potočnik", code: generateCode(), points: [] },
+  { name: "Luka Kovač", code: generateCode(), points: [] },
+  { name: "Hana Mlakar", code: generateCode(), points: [] },
+  { name: "Nik Vidmar", code: generateCode(), points: [] },
+  { name: "Zala Kos", code: generateCode(), points: [] },
+];
+
+export default function App() {
+  const [students, setStudents] = useState([]);
+  const [selectedCode, setSelectedCode] = useState("");
+  const [taskPoints, setTaskPoints] = useState(Array(7).fill(""));
+
+  // Load from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("studentsData");
+    if (saved) {
+      setStudents(JSON.parse(saved));
+    } else {
+      setStudents(defaultStudents);
+    }
+  }, []);
+
+  // Save to localStorage
+  useEffect(() => {
+    localStorage.setItem("studentsData", JSON.stringify(students));
+  }, [students]);
+
+  const handleReset = (code) => {
+    setStudents(students.map(s => s.code === code ? { ...s, points: [] } : s));
+  };
+
+  const handleChangeCode = (code) => {
+    const newCode = generateCode();
+    setStudents(students.map(s => s.code === code ? { ...s, code: newCode, points: [] } : s));
+  };
+
+  const availableCodes = students.filter(s => s.points.length === 0).map(s => s.code);
+
+  const handleSavePoints = () => {
+    setStudents(students.map(s => s.code === selectedCode ? { ...s, points: taskPoints.map(Number) } : s));
+    setSelectedCode("");
+    setTaskPoints(Array(7).fill(""));
+  };
+
+  return (
+    <main className="p-4">
+      <Tabs defaultValue="ucenci">
+        <TabsList>
+          <TabsTrigger value="ucenci">Učenci</TabsTrigger>
+          <TabsTrigger value="preglej">Preglej</TabsTrigger>
+          <TabsTrigger value="rezultati">Rezultati</TabsTrigger>
+        </TabsList>
+
+        {/* UČENCI */}
+        <TabsContent value="ucenci">
+          <Card className="mt-4">
+            <CardContent className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr>
+                    <th className="p-2">Učenec</th>
+                    <th className="p-2">Koda</th>
+                    <th className="p-2">Akcije</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {students.map((s, idx) => (
+                    <tr key={idx} className="border-t">
+                      <td className="p-2">{s.name}</td>
+                      <td className="p-2">{s.code}</td>
+                      <td className="p-2 space-x-2">
+                        <Button size="sm" variant="destructive" onClick={() => handleReset(s.code)}>Ponastavi test</Button>
+                        <Button size="sm" onClick={() => handleChangeCode(s.code)}>Spremeni kodo</Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* PREGLEJ */}
+        <TabsContent value="preglej">
+          <Card className="mt-4 p-4">
+            <Select value={selectedCode} onValueChange={setSelectedCode}>
+              <SelectTrigger className="w-64">{selectedCode || "Izberi kodo učenca"}</SelectTrigger>
+              <SelectContent>
+                {availableCodes.sort(() => 0.5 - Math.random()).map(code => (
+                  <SelectItem key={code} value={code}>{code}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {selectedCode && (
+              <div className="mt-4 space-y-2">
+                {Array.from({ length: 7 }, (_, i) => (
+                  <Input
+                    key={i}
+                    type="number"
+                    min={0}
+                    max={7}
+                    placeholder={`Točke za nalogo ${i + 1}`}
+                    value={taskPoints[i]}
+                    onChange={e => {
+                      const updated = [...taskPoints];
+                      updated[i] = e.target.value;
+                      setTaskPoints(updated);
+                    }}
+                  />
+                ))}
+                <Button className="mt-2" onClick={handleSavePoints}>Shrani točke</Button>
+              </div>
+            )}
+          </Card>
+        </TabsContent>
+
+        {/* REZULTATI */}
+        <TabsContent value="rezultati">
+          <Card className="mt-4">
+            <CardContent className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr>
+                    <th className="p-2">Učenec</th>
+                    <th className="p-2">Točke (vse)</th>
+                    <th className="p-2">Skupaj</th>
+                    <th className="p-2">Možne točke</th>
+                    <th className="p-2">Procent</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {students.map((s, idx) => {
+                    const total = s.points.reduce((a, b) => a + b, 0);
+                    const max = s.points.length * 7;
+                    const percent = max > 0 ? ((total / max) * 100).toFixed(1) + "%" : "";
+                    return (
+                      <tr key={idx} className="border-t">
+                        <td className="p-2">{s.name}</td>
+                        <td className="p-2">{s.points.join(", ")}</td>
+                        <td className="p-2">{total}</td>
+                        <td className="p-2">{max}</td>
+                        <td className="p-2">{percent}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </main>
+  );
+}
